@@ -14,11 +14,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // CSRF Disable කිරීම අනිවාර්යයි
+                // 1. Frontend access සඳහා CORS සක්‍රීය කිරීම
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("*")); // Postman & Web Frontend Access
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    return config;
+                }))
+                // 2. 403 Forbidden විසඳීමට CSRF Disable කිරීම
+                .csrf(AbstractHttpConfigurer::disable)
+                // 3. Auth Endpoints public කිරීම
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 );
+
         return http.build();
     }
 }

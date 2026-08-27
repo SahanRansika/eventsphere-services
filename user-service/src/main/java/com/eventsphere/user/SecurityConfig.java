@@ -32,27 +32,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filter(HttpSecurity h) throws Exception {
         return h
-                // CORS Config සක්‍රිය කිරීම
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // REST API සඳහා CSRF disable කිරීම
                 .csrf(c -> c.disable())
-                // JWT භාවිතා කරන බැවින් Stateless Session policy එකක් සැකසීම (Cookie/SessionId සෑදීම නවත්වයි)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        // Auth endpoints සහ actuator සියල්ලටම Permit කරයි
                         .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
-                        // අන් සියලුම endpoints සඳහා Authenticated Users ලාට පිවිසිය හැක
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // Frontend එකට Request යැවීමට අවසර දෙන CORS Configuration එක
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Production වලදී Frontend URL එක පමණක් ලබා දෙන්න (උදා: "http://localhost:3000")
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 

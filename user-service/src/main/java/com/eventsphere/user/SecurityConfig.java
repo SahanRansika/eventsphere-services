@@ -1,4 +1,4 @@
-package com.eventsphere.user.config;
+package com.eventsphere.user;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,25 +16,30 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Authentication and authorization are enforced at the API Gateway.
+     * This service is intentionally internal to the Docker network and
+     * receives trusted identity headers from the gateway.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
-                        .anyRequest().authenticated()
-                );
-
-        return http.build();
+                        .requestMatchers("/actuator/**", "/api/auth/**", "/api/**")
+                        .permitAll()
+                        .anyRequest().permitAll())
+                .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

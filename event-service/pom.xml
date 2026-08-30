@@ -7,8 +7,9 @@
 
  <parent>
   <groupId>com.eventsphere</groupId>
-  <artifactId>eventsphere</artifactId>
+  <artifactId>eventsphere-services</artifactId>
   <version>2.0.0</version>
+  <relativePath>../pom.xml</relativePath>
  </parent>
 
  <artifactId>event-service</artifactId>

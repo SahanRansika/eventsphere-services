@@ -12,28 +12,28 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
- @Value("${jwt.secret}")
- private String secret;
+    @Value("${jwt.secret}")
+    private String secret;
 
- @Value("${jwt.expiration-ms:86400000}")
- private long expiration;
+    @Value("${jwt.expiration-ms:86400000}")
+    private long expiration;
 
- private SecretKey key() {
-  return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
- }
+    private SecretKey key() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
- public String token(User user) {
-  Date now = new Date();
-  Date expiresAt = new Date(now.getTime() + expiration);
+    public String token(User user) {
+        Date now = new Date();
+        Date expiresAt = new Date(now.getTime() + expiration);
 
-  return Jwts.builder()
-          .subject(user.getEmail())
-          .claim("userId", user.getId())
-          .claim("fullName", user.getFullName())
-          .claim("role", user.getRole().name())
-          .issuedAt(now)
-          .expiration(expiresAt)
-          .signWith(key())
-          .compact();
- }
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .claim("userId", user.getId())
+                .claim("fullName", user.getFullName())
+                .claim("role", user.getRole().name())
+                .issuedAt(now)
+                .expiration(expiresAt)
+                .signWith(key())
+                .compact();
+    }
 }
